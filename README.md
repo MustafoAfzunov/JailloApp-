@@ -1,3 +1,5 @@
+**Live:** https://jailoapp-production.up.railway.app
+
 # Жайлоо — JailoApp
 
 Early warning and a village market for mountain communities in Kyrgyzstan.

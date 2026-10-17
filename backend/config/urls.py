@@ -1,13 +1,24 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.http import JsonResponse
-from django.urls import include, path
+from django.http import FileResponse, JsonResponse
+from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
 def health(request):
     return JsonResponse({"status": "ok"})
+
+
+def frontend(request, path=""):
+    """Serve the built React app. Missing client routes fall back to index.html."""
+    root = settings.FRONTEND_DIST.resolve()
+    index = root / "index.html"
+    if path:
+        target = (root / path).resolve()
+        if str(target).startswith(str(root)) and target.is_file():
+            return FileResponse(target.open("rb"))
+    return FileResponse(index.open("rb"))
 
 
 urlpatterns = [
@@ -24,3 +35,6 @@ urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.FRONTEND_DIST.joinpath("index.html").is_file():
+    urlpatterns += [re_path(r"^(?!api/|admin/|static/|media/).*$", frontend)]

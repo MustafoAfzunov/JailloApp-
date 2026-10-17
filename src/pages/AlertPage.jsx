@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Icon from '../components/Icon.jsx'
 import Countdown, { useCountdown } from '../components/Countdown.jsx'
-import { Loading, Page, Toast } from '../components/ui.jsx'
+import { ErrorBox, Loading, Page, Toast } from '../components/ui.jsx'
 import { AudioButton } from './Home.jsx'
 import { api, errorText } from '../lib/api.js'
 import { useAuth } from '../lib/auth.jsx'
@@ -14,7 +14,7 @@ const HAZARD_ICON = { mudflow: 'tsunami', flood: 'flood', avalanche: 'ac_unit', 
 
 export default function AlertPage() {
   const { t } = useI18n()
-  const { home, refresh } = usePortal()
+  const { home, error, refresh } = usePortal()
   const { user } = useAuth()
   const navigate = useNavigate()
   const alert = home?.status?.primary_alert
@@ -22,7 +22,7 @@ export default function AlertPage() {
   const [safe, setSafe] = useState(false)
   const [toast, setToast] = useState('')
 
-  if (!home) return <Page><Loading /></Page>
+  if (!home) return <Page className="mx-auto max-w-xl px-4 py-space-lg">{error ? <ErrorBox onRetry={refresh} /> : <Loading />}</Page>
 
   if (!alert) {
     return (
